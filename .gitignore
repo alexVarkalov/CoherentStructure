@@ -90,3 +90,7 @@ ENV/
 .ropeproject
 
 .idea
+
+test/
+
+logs/
