@@ -94,3 +94,5 @@ ENV/
 test/
 
 logs/
+
+txts/
