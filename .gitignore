@@ -92,7 +92,6 @@ ENV/
 .idea
 
 test/
-
 logs/
-
 txts/
+StreamImage/
