@@ -6,35 +6,17 @@ import matplotlib.pyplot as plt
 import Tkinter
 import tkFileDialog
 from matplotlib import cm
-from utils import get_file_paths, path_leaf
-
-
-def create_module_matrix(X, Y):
-    """ Create Matrix of polar radius """
-    sq_X = np.zeros(X.shape)
-    sq_Y = np.zeros(Y.shape)
-    for i in range(X.shape[0]):
-        for j in range(X.shape[1]):
-            sq_X[i][j] = X[i][j] ** 2
-    for i in range(Y.shape[0]):
-        for j in range(Y.shape[1]):
-            sq_Y[i][j] = Y[i][j] ** 2
-    Z = np.zeros((249, 249))
-    for i in range(Z.shape[0]):
-        for j in range(Z.shape[1]):
-            Z[i][j] = np.sqrt(sq_X[i][j] + sq_Y[i][j])
-    return Z
+from utils import *
 
 
 def horizontal_cut(paths, folder, log_file):
-
-    step = 2
+    step = 1
 
     log_file.writelines('step = {} \n'.format(step))
-
     log_file.writelines('+++++++++++++++++++++++\n')
     log_file.writelines('Horizontal cut\n')
     log_file.writelines('+++++++++++++++++++++++\n')
+
     for path in paths:
         file_start_time = arrow.now()
         file_name = path_leaf(path)
@@ -48,25 +30,44 @@ def horizontal_cut(paths, folder, log_file):
         os.makedirs('{}/{}'.format(folder, file_folder))
         # print path
         nc_file = nc4.Dataset(path, mode='r')
+        max_level = nc_file.variables['U'].shape[1] - 1
+        while True:
+            try:
+                highs = input('Enter High levels. Min is 0. Max is {}. Write -1 for all: '.format(max_level))
+            except Exception:
+                print('Wrong Input')
+                continue
+            if highs == -1:
+                start_high = 0
+                end_high = max_level
+                break
+            elif isinstance(highs, int) and 0 <= highs <= max_level:
+                start_high = highs
+                end_high = highs + 1
+                break
+            elif isinstance(highs, tuple) and len(highs) == 2 and highs[1] > highs[0] >= 0:
+                start_high = highs[0]
+                end_high = highs[1]
+                break
+            else:
+                print('Wrong Input')
+                continue
 
-        highs = nc_file.variables['U'].shape[1]
-
-        highs = 3
-
-        for h in range(highs):
+        for h in range(start_high, end_high):
             high_start_time = arrow.now()
             log_file.writelines('High #{} Start Time - {}\n'.format(h, high_start_time))
-            # print 'High #{} Start Time - {}'.format(h, high_start_time)
             x_wind = nc_file.variables['U']
             y_wind = nc_file.variables['V']
             x_wind0 = x_wind[0][h]
             y_wind0 = y_wind[0][h]
-            # todo figure out with shape
-            X, Y = np.meshgrid(np.arange(0, 249, 1), np.arange(0, 249, 1))
+            min_shape = min(x_wind0.shape[0], x_wind0.shape[1], y_wind0.shape[0], y_wind0.shape[1])
+            x_wind0 = x_wind0[:min_shape, :min_shape]
+            y_wind0 = y_wind0[:min_shape, :min_shape]
+            X, Y = np.meshgrid(np.arange(0, x_wind0.shape[0], 1), np.arange(0, x_wind0.shape[1], 1))
             U = x_wind0
             V = y_wind0
             Z = create_module_matrix(U, V)
-            plt.figure(figsize=(10, 10), facecolor='w', edgecolor='r')
+            plt.figure(figsize=(12.5, 10), facecolor='w', edgecolor='r')
             plt.streamplot(
                 X[::step, ::step],
                 Y[::step, ::step],
@@ -80,10 +81,11 @@ def horizontal_cut(paths, folder, log_file):
             )
             plt.colorbar()
             plt.axis([-10, 260, -10, 260])
+            plt.axis([-X.shape[1] * 0.1, X.shape[1] * 1.1, -Y.shape[0] * 0.1, Y.shape[0] * 1.1])
             plt.title('{}/high{}.png'.format(folder, h))
             plt.savefig('{}/{}/high{}.png'.format(folder, file_folder, h))
             plt.close()
-            # print ('{}/{}/high{}.png is created'.format(folder, file_folder, h))
+
             high_end_time = arrow.now()
             high_delta = high_end_time - high_start_time
             print 'High #{} Delta - {}'.format(h, high_delta)
@@ -100,13 +102,13 @@ def horizontal_cut(paths, folder, log_file):
 
 
 def vertical_cut(paths, folder, log_file):
-    step = 2
+    step = 1
 
     log_file.writelines('step = {} \n'.format(step))
-
     log_file.writelines('+++++++++++++++++++++++\n')
     log_file.writelines('Vertical cut\n')
     log_file.writelines('+++++++++++++++++++++++\n')
+
     for path in paths:
         file_start_time = arrow.now()
         file_name = path_leaf(path)
@@ -115,58 +117,84 @@ def vertical_cut(paths, folder, log_file):
         log_file.writelines('File {} Start Time - {}\n\n'.format(file_name, file_start_time))
         log_file.writelines('-----------------------\n')
         print 'File {} Start Time - {}'.format(file_name, file_start_time)
+
         file_folder = file_name.split('.')[0]
         os.makedirs('{}/{}'.format(folder, file_folder))
-        # print path
         nc_file = nc4.Dataset(path, mode='r')
+        while True:
+            print('Enter Points coordinates')
+            max_value = min(nc_file.variables['U'][0][0].shape[0], nc_file.variables['U'][0][0].shape[1])
+            pointA = raw_input('point A. Min - (0,0). Max({},{}): '.format(max_value - 1, max_value - 1)).split(', ')
+            if len(pointA) > 2:
+                print('Wrong Input')
+                continue
+            else:
+                pointA[0] = int(pointA[0])
+                pointA[1] = int(pointA[1])
+                if pointA[0] >= max_value or pointA[1] >= max_value:
+                    print('Wrong Input')
+                    continue
+            pointB = raw_input('point B. Min - (0,0). Max({},{}): '.format(max_value - 1, max_value - 1)).split(', ')
+            if len(pointB) > 2:
+                print('Wrong Input')
+                continue
+            else:
+                pointB[0] = int(pointB[0])
+                pointB[1] = int(pointB[1])
+                if pointB[0] >= max_value or pointB[1] >= max_value:
+                    print('Wrong Input')
+                    continue
+            break
+        if pointB[0] < pointA[0]:
+            pointA, pointB = pointB, pointA
+        if pointA[0] - pointB[0] == 0:
+            sin_alpha = 1
+            cos_alpha = 10 ** 13
+        elif pointA[1] - pointB[1] == 0:
+            sin_alpha = 10 ** 13
+            cos_alpha = 1
+        else:
+            sin_alpha = (pointB[1] - pointA[1]) / np.sqrt((pointB[0] - pointA[0]) ** 2 + (pointB[1] - pointA[1]) ** 2)
+            cos_alpha = np.sqrt(1 - sin_alpha ** 2)
 
-        A = (50, 50)
-        B = (100, 100)
-        sin_alpha = (B[1] - A[1])/np.sqrt((B[0] - A[0])**2 + (B[1] - A[1])**2)
-        cos_alpha = np.sqrt(1 - sin_alpha**2)
-        print sin_alpha
-        print cos_alpha
-        return 0
-        highs = nc_file.variables['U'].shape[1]
+        coords = bresenham_line(pointA, pointB)
+        matrixXY = []
+        matrixZ = []
+        for i in range(27):
+            U = nc_file.variables['U'][0][i]
+            V = nc_file.variables['V'][0][i]
+            W = nc_file.variables['W'][0][i]
+            vectorXY = []
+            vectorZ = []
+            for x, y in coords:
+                vectorXY.append(U[x][y] / cos_alpha + V[x][y] / sin_alpha)
+                vectorZ.append(W[x][y])
+            matrixXY.append(vectorXY)
+            matrixZ.append(vectorZ)
 
-        highs = 3
+        matrixXY = np.array(matrixXY)
+        matrixZ = np.array(matrixZ)
+        X, Y = np.meshgrid(np.arange(0, matrixXY.shape[1], 1), np.arange(0, matrixXY.shape[0], 1))
+        Z = create_module_matrix(matrixXY, matrixZ)
+        plt.figure(figsize=(20, 10), facecolor='w', edgecolor='r')
+        plt.streamplot(
+            X[::step, ::step],
+            Y[::step, ::step],
+            matrixXY[::step, ::step],
+            matrixZ[::step, ::step],
+            color=Z[::step, ::step],
+            cmap=cm.cool,
+            linewidth=1.0,
+            arrowstyle='->',
+            arrowsize=1.5,
+        )
+        plt.colorbar()
+        plt.axis([-matrixXY.shape[1] * 0.1, matrixXY.shape[1] * 1.1, -matrixXY.shape[0] * 0.1, matrixXY.shape[0]])
+        plt.title('{}/A({},{});B({},{}).png'.format(folder, pointA[0], pointA[1], pointB[0], pointB[1]))
+        plt.savefig(
+            '{}/{}/A({},{});B({},{}).png'.format(folder, file_folder, pointA[0], pointA[1], pointB[0], pointB[1]))
+        plt.close()
 
-        for h in range(highs):
-            high_start_time = arrow.now()
-            log_file.writelines('High #{} Start Time - {}\n'.format(h, high_start_time))
-            # print 'High #{} Start Time - {}'.format(h, high_start_time)
-            x_wind = nc_file.variables['U']
-            z_wind = nc_file.variables['W']
-            x_wind0 = x_wind[0][h]
-            y_wind0 = y_wind[0][h]
-            # todo figure out with shape
-            X, Y = np.meshgrid(np.arange(0, 249, 1), np.arange(0, 249, 1))
-            U = x_wind0
-            V = y_wind0
-            Z = create_module_matrix(U, V)
-            plt.figure(figsize=(10, 10), facecolor='w', edgecolor='r')
-            plt.streamplot(
-                X[::step, ::step],
-                Y[::step, ::step],
-                U[::step, ::step],
-                V[::step, ::step],
-                color=Z[::step, ::step],
-                cmap=cm.cool,
-                linewidth=1.0,
-                arrowstyle='->',
-                arrowsize=1.5,
-            )
-            plt.colorbar()
-            plt.axis([-10, 260, -10, 260])
-            plt.title('{}/high{}.png'.format(folder, h))
-            plt.savefig('{}/{}/high{}.png'.format(folder, file_folder, h))
-            plt.close()
-            # print ('{}/{}/high{}.png is created'.format(folder, file_folder, h))
-            high_end_time = arrow.now()
-            high_delta = high_end_time - high_start_time
-            print 'High #{} Delta - {}'.format(h, high_delta)
-            log_file.writelines('High End Time - {}\n'.format(high_end_time))
-            log_file.writelines('High Delta - {}\n\n'.format(high_delta))
         file_end_time = arrow.now()
         log_file.writelines('-----------------------\n')
         log_file.writelines('File {} End Time - {}\n\n'.format(file_name, file_end_time))
@@ -175,6 +203,7 @@ def vertical_cut(paths, folder, log_file):
         log_file.writelines('File {} Delta - {}\n'.format(file_name, file_delta))
         log_file.writelines('-----------------------\n')
         print 'High {} Delta - {}\n'.format(file_name, file_delta)
+
 
 def main():
     directory = '../StreamImage'
