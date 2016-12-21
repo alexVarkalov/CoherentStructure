@@ -2,3 +2,4 @@ arrow
 netCDF4
 numpy
 matplotlib
+opencv-python

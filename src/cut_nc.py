@@ -150,5 +150,5 @@ def main():
         log_file.write('Work Time - {}\n'.format(work_time))
         log_file.write('***********************\n')
 
-
-main()
+if __name__ == '__main__':
+    main()

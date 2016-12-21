@@ -10,9 +10,27 @@ from utils import *
 def horizontal_cut(paths, folder):
     step = 1
     start_height, end_height = None, None
+
     work_folder = '{}/{}'.format(folder, arrow.now().now().strftime("%Y-%m-%d_%H:%M:%S"))
     os.makedirs(work_folder)
     divide_method = get_divide_method()
+    while True:
+        print('What coordinate system use?')
+        print('1. X Y\n2. Lat Long')
+        try:
+            choose = input(': ')
+        except Exception:
+            print('Wrong Input')
+            continue
+        if choose == 1:
+            coord_system = 1
+            break
+        elif choose == 2:
+            coord_system = 2
+            break
+        else:
+            print('Wrong Input')
+            continue
     for path in paths:
         nc_file = nc4.Dataset(path, mode='r')
         hour = str(arrow.get(''.join(nc_file.variables['Times'][0]), 'YYYY-M-D_HH:mm:ss').time().hour).zfill(2)
@@ -26,8 +44,13 @@ def horizontal_cut(paths, folder):
             min_shape = min(U.shape[0], U.shape[1], V.shape[0], V.shape[1])
             U = U[:min_shape, :min_shape]
             V = V[:min_shape, :min_shape]
-            X = nc_file.variables['XLONG'][0]
-            Y = nc_file.variables['XLAT'][0]
+            min_shape = min(U.shape[0], U.shape[1], V.shape[0], V.shape[1])
+            if coord_system == 1:
+                X, Y = np.meshgrid(np.arange(0, min_shape, 1), np.arange(0, min_shape, 1))
+            elif coord_system == 2:
+                X = nc_file.variables['XLONG'][0]
+                Y = nc_file.variables['XLAT'][0]
+            vort = wrf_vort(U=U, V=V, dx=1)
             color = create_module_matrix(U, V)
             plt.figure(figsize=(12.5, 10), facecolor='w', edgecolor='r')
             plt.streamplot(
@@ -41,6 +64,8 @@ def horizontal_cut(paths, folder):
                 arrowstyle='->',
                 arrowsize=1.5,
             )
+            if coord_system == 1:
+                plt.axis([-min_shape*0.1, min_shape*1.1, -min_shape*0.1, min_shape*1.1])
             plt.colorbar()
             if divide_method == 'hours':
                 if not os.path.exists('{}/hours'.format(work_folder)):
@@ -142,4 +167,5 @@ def main():
     work_time = end_time - start_time
 
 
-main()
+if __name__ == '__main__':
+    main()

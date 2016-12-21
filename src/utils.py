@@ -185,3 +185,39 @@ def get_sin_cos_by_points(pointA, pointB):
         cos_alpha = np.sqrt(1 - sin_alpha ** 2)
     return sin_alpha, cos_alpha
 
+
+def wrf_vort( U, V, dx ):
+    """Calculate the relative vorticity given the U and V vector components in m/s
+    and the grid spacing dx in meters.
+    U and V must be the same shape.
+    ---------------------
+    U (numpy.ndarray): ndarray of U vector values in m/s
+    V (numpy.ndarray): ndarray of V vector values in m/s
+    dx (float or int): float or integer of U and V grispacing in meters
+    ---------------------
+    returns:
+        numpy.ndarray of vorticity values s^-1 same shape as U and V
+    """
+    assert U.shape == V.shape, 'Arrays are different shapes. They must be the same shape.'
+    dy = dx
+    du = np.gradient( U )
+    dv = np.gradient( V )
+    return ( dv[-1]/dx - du[-2]/dy )
+
+
+def wrf_absvort(U, V, F, dx):
+    """Calculate the absolute vorticity given the U and V vector components in m/s,
+    the Coriolis sine latitude term (F) in s^-1, and gridspacing dx in meters. U, V, and F
+    must be the same shape.
+    ---------------------
+    U (numpy.ndarray): ndarray of U vector values in m/s
+    V (numpy.ndarray): ndarray of V vector values in m/s
+    F (numpy.ndarray): ndarray of Coriolis sine latitude values in s^-1
+    dx (float or int): float or integer of U and V grispacing in meters
+    ---------------------
+    returns:
+        numpy.ndarray of absolute vorticity values s^-1 same shape as U and V
+
+    """
+    assert U.shape == V.shape, 'Arrays are different shapes. They must be the same shape.'
+    return wrf_vort(U, V, dx) + F
