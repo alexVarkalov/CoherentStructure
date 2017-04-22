@@ -1,12 +1,6 @@
-import os
 import arrow
 import netCDF4 as nc4
-import numpy as np
-import matplotlib.pyplot as plt
-import Tkinter
 import tkFileDialog
-import ntpath
-import shutil
 
 
 def get_file_path(filename_extension):

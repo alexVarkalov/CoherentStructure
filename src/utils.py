@@ -2,6 +2,10 @@ import Tkinter
 import tkFileDialog
 import ntpath
 import numpy as np
+import arrow
+import os
+import matplotlib.pyplot as plt
+
 
 
 def path_leaf(path):
@@ -11,10 +15,7 @@ def path_leaf(path):
 
 
 def check_filename_extension(path, filename_extension):
-    if path.split('.')[1] == filename_extension:
-        return True
-    else:
-        return False
+    return True if path.split('.')[1] == filename_extension else False
 
 
 def get_file_paths(filename_extension):
@@ -123,7 +124,7 @@ def get_heights(max_level):
     return start_high, end_high
 
 
-def get_divide_method():
+def choose_divide_method():
     while True:
         print('Divide by heights or hours?')
         print('1. Heights\n2. Hours')
@@ -136,9 +137,25 @@ def get_divide_method():
             return 'heights'
         elif choose == 2:
             return 'hours'
-        else:
+        print('Wrong Input')
+
+
+def choose_coord_system():
+    while True:
+        print('What coordinate system use?')
+        print('1. X Y\n2. Lat Long')
+        try:
+            choose = input(': ')
+        except Exception:
             print('Wrong Input')
             continue
+        if choose == 1:
+            coord_system = 'X Y'
+            return coord_system
+        elif choose == 2:
+            coord_system = 'Lat Long'
+            return coord_system
+        print('Wrong Input')
 
 
 def set_points(max_value):
@@ -203,6 +220,54 @@ def wrf_vort( U, V, dx ):
     du = np.gradient( U )
     dv = np.gradient( V )
     return ( dv[-1]/dx - du[-2]/dy )
+
+
+
+def save_plot(divide_method, work_folder, hour, height):
+    if divide_method == 'hours':
+        if not os.path.exists('{}/hours'.format(work_folder)):
+            os.makedirs('{}/hours'.format(work_folder))
+        if not os.path.exists('{}/hours/{}'.format(work_folder, hour)):
+            os.makedirs('{}/hours/{}'.format(work_folder, hour))
+        plt.title('{}/hours/{}/height#{}'.format(work_folder, hour, str(height).zfill(2)))
+        plt.savefig('{}/hours/{}/{}.png'.format(work_folder, hour, str(height).zfill(2)))
+    elif divide_method == 'heights':
+        if not os.path.exists('{}/heights'.format(work_folder)):
+            os.makedirs('{}/heights'.format(work_folder))
+        if not os.path.exists('{}/heights/{}'.format(work_folder, str(height).zfill(2))):
+            os.makedirs('{}/heights/{}'.format(work_folder, str(height).zfill(2)))
+        plt.title('{}/heights/{}/hour-{}'.format(work_folder, str(height).zfill(2), hour))
+        plt.savefig('{}/heights/{}/{}.png'.format(work_folder, str(height).zfill(2), hour))
+
+
+def create_theta_wind_matrix(nc_file):
+    # return np.zeros((27, 249, 249)), np.zeros((27, 249, 249)), np.zeros((27, 249, 249))
+    start_time = arrow.now().timestamp
+    U = nc_file.variables['U'][0]
+    V = nc_file.variables['V'][0]
+    W = nc_file.variables['W'][0]
+    U_theta = np.zeros((27, 249, 249))
+    V_theta = np.zeros((27, 249, 249))
+    W_theta = np.zeros((27, 249, 249))
+
+    for k in range(U.shape[0]):
+        for j in range(U.shape[1]):
+            for i in range(U.shape[2] - 1):
+                U_theta[k][j][i] = 0.5*(U[k][j][i] + U[k][j][i+1])
+
+    for k in range(V.shape[0]):
+        for j in range(V.shape[1] - 1):
+            for i in range(V.shape[2]):
+                V_theta[k][j][i] = 0.5 * (V[k][j][i] + V[k][j + 1][i])
+
+    for k in range(W.shape[0] - 1):
+        for j in range(W.shape[1]):
+            for i in range(W.shape[2] - 1):
+                W_theta[k][j][i] = 0.5 * (W[k][j][i] + W[k + 1][j][i])
+    end_time = arrow.now().timestamp
+    delta_time = end_time - start_time
+    print delta_time
+    return U_theta, V_theta, W_theta
 
 
 def wrf_absvort(U, V, F, dx):
