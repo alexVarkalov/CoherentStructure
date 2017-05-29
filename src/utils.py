@@ -7,7 +7,6 @@ import os
 import matplotlib.pyplot as plt
 
 
-
 def path_leaf(path):
     """ Take file name from path """
     head, tail = ntpath.split(path)
@@ -78,21 +77,21 @@ def bresenham_line((x, y), (x2, y2)):
     return coords
 
 
-def create_module_matrix(X, Y):
+def create_module_matrix(x, y):
     """ Create Matrix of polar radius """
-    sq_X = np.zeros(X.shape)
-    sq_Y = np.zeros(Y.shape)
-    for i in range(X.shape[0]):
-        for j in range(X.shape[1]):
-            sq_X[i][j] = X[i][j] ** 2
-    for i in range(Y.shape[0]):
-        for j in range(Y.shape[1]):
-            sq_Y[i][j] = Y[i][j] ** 2
-    Z = np.zeros((X.shape[0], X.shape[1]))
-    for i in range(Z.shape[0]):
-        for j in range(Z.shape[1]):
-            Z[i][j] = np.sqrt(sq_X[i][j] + sq_Y[i][j])
-    return Z
+    sq_x = np.zeros(x.shape)
+    sq_y = np.zeros(y.shape)
+    for i in range(x.shape[0]):
+        for j in range(x.shape[1]):
+            sq_x[i][j] = x[i][j] ** 2
+    for i in range(y.shape[0]):
+        for j in range(y.shape[1]):
+            sq_y[i][j] = y[i][j] ** 2
+    z = np.zeros((x.shape[0], x.shape[1]))
+    for i in range(z.shape[0]):
+        for j in range(z.shape[1]):
+            z[i][j] = np.sqrt(sq_x[i][j] + sq_y[i][j])
+    return z
 
 
 def get_heights(max_level):
@@ -141,6 +140,7 @@ def choose_divide_method():
 
 
 def choose_coord_system():
+    return 'Lat Long'
     while True:
         print('What coordinate system use?')
         print('1. X Y\n2. Lat Long')
@@ -190,37 +190,17 @@ def set_points(max_value):
             continue
 
 
-def get_sin_cos_by_points(pointA, pointB):
-    if pointA[0] - pointB[0] == 0:
+def get_sin_cos_by_points(point_a, point_b):
+    if point_a[0] - point_b[0] == 0:
         sin_alpha = 1
         cos_alpha = 10 ** 13
-    elif pointA[1] - pointB[1] == 0:
+    elif point_a[1] - point_b[1] == 0:
         sin_alpha = 10 ** 13
         cos_alpha = 1
     else:
-        sin_alpha = (pointB[1] - pointA[1]) / np.sqrt((pointB[0] - pointA[0]) ** 2 + (pointB[1] - pointA[1]) ** 2)
+        sin_alpha = (point_b[1] - point_a[1]) / np.sqrt((point_b[0] - point_a[0]) ** 2 + (point_b[1] - point_a[1]) ** 2)
         cos_alpha = np.sqrt(1 - sin_alpha ** 2)
     return sin_alpha, cos_alpha
-
-
-def wrf_vort( U, V, dx ):
-    """Calculate the relative vorticity given the U and V vector components in m/s
-    and the grid spacing dx in meters.
-    U and V must be the same shape.
-    ---------------------
-    U (numpy.ndarray): ndarray of U vector values in m/s
-    V (numpy.ndarray): ndarray of V vector values in m/s
-    dx (float or int): float or integer of U and V grispacing in meters
-    ---------------------
-    returns:
-        numpy.ndarray of vorticity values s^-1 same shape as U and V
-    """
-    assert U.shape == V.shape, 'Arrays are different shapes. They must be the same shape.'
-    dy = dx
-    du = np.gradient( U )
-    dv = np.gradient( V )
-    return ( dv[-1]/dx - du[-2]/dy )
-
 
 
 def save_plot(divide_method, work_folder, hour, height):
@@ -240,34 +220,23 @@ def save_plot(divide_method, work_folder, hour, height):
         plt.savefig('{}/heights/{}/{}.png'.format(work_folder, str(height).zfill(2), hour))
 
 
-def create_theta_wind_matrix(nc_file):
-    # return np.zeros((27, 249, 249)), np.zeros((27, 249, 249)), np.zeros((27, 249, 249))
-    start_time = arrow.now().timestamp
-    U = nc_file.variables['U'][0]
-    V = nc_file.variables['V'][0]
-    W = nc_file.variables['W'][0]
-    U_theta = np.zeros((27, 249, 249))
-    V_theta = np.zeros((27, 249, 249))
-    W_theta = np.zeros((27, 249, 249))
-
-    for k in range(U.shape[0]):
-        for j in range(U.shape[1]):
-            for i in range(U.shape[2] - 1):
-                U_theta[k][j][i] = 0.5*(U[k][j][i] + U[k][j][i+1])
-
-    for k in range(V.shape[0]):
-        for j in range(V.shape[1] - 1):
-            for i in range(V.shape[2]):
-                V_theta[k][j][i] = 0.5 * (V[k][j][i] + V[k][j + 1][i])
-
-    for k in range(W.shape[0] - 1):
-        for j in range(W.shape[1]):
-            for i in range(W.shape[2] - 1):
-                W_theta[k][j][i] = 0.5 * (W[k][j][i] + W[k + 1][j][i])
-    end_time = arrow.now().timestamp
-    delta_time = end_time - start_time
-    print delta_time
-    return U_theta, V_theta, W_theta
+def wrf_vort( U, V, dx ):
+    """Calculate the relative vorticity given the U and V vector components in m/s
+    and the grid spacing dx in meters.
+    U and V must be the same shape.
+    ---------------------
+    U (numpy.ndarray): ndarray of U vector values in m/s
+    V (numpy.ndarray): ndarray of V vector values in m/s
+    dx (float or int): float or integer of U and V grispacing in meters
+    ---------------------
+    returns:
+        numpy.ndarray of vorticity values s^-1 same shape as U and V
+    """
+    assert U.shape == V.shape, 'Arrays are different shapes. They must be the same shape.'
+    dy = dx
+    du = np.gradient( U )
+    dv = np.gradient( V )
+    return ( dv[-1]/dx - du[-2]/dy )
 
 
 def wrf_absvort(U, V, F, dx):

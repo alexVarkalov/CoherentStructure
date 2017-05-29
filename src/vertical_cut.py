@@ -31,7 +31,7 @@ def vertical_cut():
 
         if not pointA or not pointB or not sin_alpha or not cos_alpha or not coords:
             pointA, pointB = set_points(max_value=U_theta.shape[1])
-            sin_alpha, cos_alpha = get_sin_cos_by_points(pointA=pointA, pointB=pointB)
+            sin_alpha, cos_alpha = get_sin_cos_by_points(point_a=pointA, point_b=pointB)
             coords = bresenham_line(pointA, pointB)
         if not start_height and not end_height:
             start_height, end_height = get_heights(max_level=max_level)
