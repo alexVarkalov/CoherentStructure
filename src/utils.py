@@ -204,20 +204,24 @@ def get_sin_cos_by_points(point_a, point_b):
 
 
 def save_plot(divide_method, work_folder, hour, height):
+    plot = ''
     if divide_method == 'hours':
         if not os.path.exists('{}/hours'.format(work_folder)):
             os.makedirs('{}/hours'.format(work_folder))
         if not os.path.exists('{}/hours/{}'.format(work_folder, hour)):
             os.makedirs('{}/hours/{}'.format(work_folder, hour))
         plt.title('{}/hours/{}/height#{}'.format(work_folder, hour, str(height).zfill(2)))
-        plt.savefig('{}/hours/{}/{}.png'.format(work_folder, hour, str(height).zfill(2)))
+        plot = '{}/hours/{}/{}.png'.format(work_folder, hour, str(height).zfill(2))
+        plt.savefig(plot)
     elif divide_method == 'heights':
         if not os.path.exists('{}/heights'.format(work_folder)):
             os.makedirs('{}/heights'.format(work_folder))
         if not os.path.exists('{}/heights/{}'.format(work_folder, str(height).zfill(2))):
             os.makedirs('{}/heights/{}'.format(work_folder, str(height).zfill(2)))
         plt.title('{}/heights/{}/hour-{}'.format(work_folder, str(height).zfill(2), hour))
-        plt.savefig('{}/heights/{}/{}.png'.format(work_folder, str(height).zfill(2), hour))
+        plot = '{}/heights/{}/{}.png'.format(work_folder, str(height).zfill(2), hour)
+        plt.savefig(plot)
+    print('{} is saved'.format(plot))
 
 
 def wrf_vort( U, V, dx ):
