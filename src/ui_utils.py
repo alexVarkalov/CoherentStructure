@@ -1,6 +1,7 @@
 import Tkinter
-import tkFileDialog
 import sys
+import tkFileDialog
+
 from utils import check_filename_extension, path_leaf
 
 
@@ -18,6 +19,7 @@ def get_file_paths(filename_extension):
             if not check_filename_extension(path=path, filename_extension=filename_extension):
                 print ('{} is not .{} file. Choose file(s) again.'.format(path_leaf(path), filename_extension))
                 paths = []
+                root.update()
                 root.destroy()
                 break
         if not paths:

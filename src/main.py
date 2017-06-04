@@ -1,10 +1,10 @@
-import os
-import arrow
 import sys
 
-from ui_utils import choose_divide_method, get_file_paths
+import arrow
+import os
 
 from horizontal_cut import horizontal_cut
+from ui_utils import choose_divide_method, get_file_paths
 
 
 def main():

@@ -1,11 +1,8 @@
-import Tkinter
-import tkFileDialog
 import ntpath
 import numpy as np
 import arrow
 import os
 import matplotlib.pyplot as plt
-import sys
 
 
 def path_leaf(path):
@@ -68,6 +65,16 @@ def create_module_matrix(x, y):
     return z
 
 
+def create_angle_matrix(x, y):
+    angle = np.zeros((x.shape[0], x.shape[1]))
+    for i in range(angle.shape[0]):
+        for j in range(angle.shape[1]):
+            degree = np.degrees(np.arctan(y[i][j] / x[i][j]))
+            angle[i][j] = degree
+
+    return angle
+
+
 def get_sin_cos_by_points(point_a, point_b):
     if point_a[0] - point_b[0] == 0:
         sin_alpha = 1
@@ -88,7 +95,7 @@ def save_plot(divide_method, work_folder, hour, height, img_type):
             os.makedirs('{}/hours'.format(work_folder))
         if not os.path.exists('{}/hours/{}'.format(work_folder, hour)):
             os.makedirs('{}/hours/{}'.format(work_folder, hour))
-        plt.title('{}/hours/{}/height#{}-{}'.format(work_folder, hour, str(height).zfill(2)), img_type)
+        plt.title('{}/hours/{}/height#{}-{}'.format(work_folder, hour, str(height).zfill(2), img_type))
         plot = '{}/hours/{}/{}-{}.png'.format(work_folder, hour, str(height).zfill(2), img_type)
         plt.savefig(plot)
     elif divide_method == 'heights':

@@ -1,7 +1,6 @@
 import arrow
-import numpy as np
 import netCDF4 as nc4
-import sys
+import numpy as np
 
 from ui_utils import get_file_paths
 
