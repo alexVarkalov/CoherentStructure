@@ -3,7 +3,7 @@ import numpy as np
 import netCDF4 as nc4
 import sys
 
-from utils import get_file_paths
+from ui_utils import get_file_paths
 
 
 def create_theta_wind_matrix(nc_file):
