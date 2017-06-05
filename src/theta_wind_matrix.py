@@ -1,3 +1,5 @@
+import os
+
 import arrow
 import netCDF4 as nc4
 import numpy as np
@@ -62,6 +64,8 @@ def get_theta_wind_matrix(path):
 
 def save_theta_wind_matrix(path, u_theta, v_theta, w_theta):
     file_folder = path.split('.')[0]
+    if not os.path.exists('{}'.format(file_folder)):
+        os.makedirs('{}'.format(file_folder))
     np.save('{}/{}'.format(file_folder, 'u_theta.npy'), u_theta)
     np.save('{}/{}'.format(file_folder, 'v_theta.npy'), v_theta)
     np.save('{}/{}'.format(file_folder, 'w_theta.npy'), w_theta)

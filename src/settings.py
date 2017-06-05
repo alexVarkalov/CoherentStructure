@@ -1,5 +1,7 @@
 DEFAULT_PATHS = (
-        '/home/varalex/University/nc/wrfout_d01_2013-05-22_01.nc',
+        # '/home/varalex/University/nc/wrfout_d01_2013-05-22_01.nc',
+        '/home/varalex/University/nc/wrfout_d01_2012-08-14_02.nc',
+        # '/media/varalex/White/wrfout_d01_2012-08-14_01_00_00.nc',
         # '/home/varalex/University/nc/wrfout_d01_2013-05-22_02.nc',
         # '/home/varalex/University/nc/wrfout_d01_2013-05-22_03.nc',
         # '/home/varalex/University/nc/wrfout_d01_2013-05-22_04.nc',
@@ -9,6 +11,7 @@ DEFAULT_PATHS = (
         # '/home/varalex/University/nc/wrfout_d01_2013-05-22_08.nc',
         # '/home/varalex/University/nc/wrfout_d01_2013-05-22_09.nc',
         # '/home/varalex/University/nc/wrfout_d01_2013-05-22_10.nc',
+
     )
 
 DEFAULT_START_HEIGHT = 6
