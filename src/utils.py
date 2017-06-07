@@ -88,14 +88,20 @@ def get_sin_cos_by_points(point_a, point_b):
     return sin_alpha, cos_alpha
 
 
-def save_plot(divide_method, work_folder, hour, height, img_type):
+def save_plot(data, img_type):
+    divide_method = data.get('divide_method')
+    work_folder = data.get('work_folder')
+    hour = data.get('hour')
+    height = data.get('height')
+    file_name = data.get('file_name')
     plot = ''
     if divide_method == 'hours':
         if not os.path.exists('{}/hours'.format(work_folder)):
             os.makedirs('{}/hours'.format(work_folder))
         if not os.path.exists('{}/hours/{}'.format(work_folder, hour)):
             os.makedirs('{}/hours/{}'.format(work_folder, hour))
-        plt.title('{}/hours/{}/height#{}-{}'.format(work_folder, hour, str(height).zfill(2), img_type))
+        # plt.title('{}/hours/{}/height#{}-{}'.format(work_folder, hour, str(height).zfill(2), img_type))
+        plt.title('{}/height#{}-{}'.format(file_name, str(height).zfill(2), img_type))
         plot = '{}/hours/{}/{}-{}.png'.format(work_folder, hour, str(height).zfill(2), img_type)
         plt.savefig(plot)
     elif divide_method == 'heights':
@@ -103,7 +109,8 @@ def save_plot(divide_method, work_folder, hour, height, img_type):
             os.makedirs('{}/heights'.format(work_folder))
         if not os.path.exists('{}/heights/{}'.format(work_folder, str(height).zfill(2))):
             os.makedirs('{}/heights/{}'.format(work_folder, str(height).zfill(2)))
-        plt.title('{}/heights/{}/hour-{}-{}'.format(work_folder, str(height).zfill(2), hour, img_type))
+        plt.title('{}/height#{}-{}'.format(file_name, str(height).zfill(2), img_type))
+        # plt.title('{}/heights/{}/hour-{}-{}'.format(work_folder, str(height).zfill(2), hour, img_type))
         plot = '{}/heights/{}/{}-{}.png'.format(work_folder, str(height).zfill(2), hour, img_type)
         plt.savefig(plot)
     print('{} is saved'.format(plot))

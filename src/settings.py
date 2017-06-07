@@ -1,6 +1,15 @@
 DEFAULT_PATHS = (
-        # '/home/varalex/University/nc/wrfout_d01_2013-05-22_01.nc',
-        '/home/varalex/University/nc/wrfout_d01_2012-08-14_02.nc',
+        # '/home/varalex/University/nc/Package1/wrfout_d01_2013-05-22_01.nc',
+        # '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_01.nc',
+        '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_05.nc',
+        '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_06.nc',
+        '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_07.nc',
+        # '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_18.nc',
+        # '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_02.nc',
+        # '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_03.nc',
+        # '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_04.nc',
+        # '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_05.nc',
+        # '/home/varalex/University/nc/Package2/wrfout_d01_2012-08-14_06.nc',
         # '/media/varalex/White/wrfout_d01_2012-08-14_01_00_00.nc',
         # '/home/varalex/University/nc/wrfout_d01_2013-05-22_02.nc',
         # '/home/varalex/University/nc/wrfout_d01_2013-05-22_03.nc',
@@ -14,8 +23,8 @@ DEFAULT_PATHS = (
 
     )
 
-DEFAULT_START_HEIGHT = 6
-DEFAULT_END_HEIGHT = 7
+DEFAULT_START_HEIGHT = 15
+DEFAULT_END_HEIGHT = 16
 
 DEFAULT_DIVIDE_METHOD = 'heights'
 # DEFAULT_DIVIDE_METHOD = 'hours'
@@ -25,25 +34,33 @@ DEFAULT_STEP = 1
 
 DEFAULT_HORIZONTAL_HISTOGRAM_SETTINGS = {
         'bins': 30,
-        'x_lim_left': 0,
-        'x_lim_right': 50,
-        'y_lim_down': 0,
-        'y_lim_up': 0.3,
+        'speed_down': 0,
+        'speed_up': 45,
+        'probability_down': 0,
+        'probability_up': 0.4,
 }
 
 DEFAULT_VERTICAL_HISTOGRAM_SETTINGS = {
         'bins': 100,
-        'x_lim_left': -0.5,
-        'x_lim_right': 0.5,
-        'y_lim_down': 0,
-        'y_lim_up': 30,
+        'speed_down': -0.5,
+        'speed_up': 0.5,
+        'probability_down': 0,
+        'probability_up': 30,
 }
 
 DEFAULT_ANGLE_HISTOGRAM_SETTINGS = {
         'bins': 60,
         # 'bins': 100,
-        'x_lim_left': -90,
-        'x_lim_right': 90,
-        'y_lim_down': 0,
-        'y_lim_up': 0.02,
+        'min_angle': -90,
+        'max_angle': 90,
+        'probability_down': 0,
+        'probability_up': 0.02,
+}
+
+
+DEFAULT_HORIZONTAL_CUT_SETTINGS = {
+        'horizontal_speed_down': 0,
+        'horizontal_speed_up': 45,
+        'vertical_speed_down': -0.5,
+        'vertical_speed_up': 0.5,
 }

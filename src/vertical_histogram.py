@@ -7,7 +7,7 @@ import os
 
 from theta_wind_matrix import get_theta_wind_matrix, theta_wind_matrix
 from ui_utils import get_file_paths, get_heights, choose_divide_method
-from utils import save_plot, get_hour_from_nc_file
+from utils import save_plot, get_hour_from_nc_file, path_leaf
 
 
 def plot_vertical_histogram(u, v, w, data):
@@ -26,25 +26,22 @@ def plot_vertical_histogram(u, v, w, data):
 
     plt.xlim(
         [
-            DEFAULT_VERTICAL_HISTOGRAM_SETTINGS.get('x_lim_left', -0.5),
-            DEFAULT_VERTICAL_HISTOGRAM_SETTINGS.get('x_lim_right', 0.5)]
+            DEFAULT_VERTICAL_HISTOGRAM_SETTINGS.get('speed_down', -0.5),
+            DEFAULT_VERTICAL_HISTOGRAM_SETTINGS.get('speed_up', 0.5)]
     )
 
     plt.ylim(
         [
-            DEFAULT_VERTICAL_HISTOGRAM_SETTINGS.get('y_lim_down', 0),
-            DEFAULT_VERTICAL_HISTOGRAM_SETTINGS.get('y_lim_up', 30)]
+            DEFAULT_VERTICAL_HISTOGRAM_SETTINGS.get('probability_down', 0),
+            DEFAULT_VERTICAL_HISTOGRAM_SETTINGS.get('probability_up', 30)]
     )
 
     # plt.xlabel('Smarts')
     plt.ylabel('Probability')
     plt.grid(True)
     save_plot(
-        divide_method=data.get('divide_method'),
-        work_folder=data.get('work_folder'),
-        hour=data.get('hour'),
-        height=data.get('height'),
-        img_type='vertical_histogram'
+        data=data,
+        img_type='vertical-histogram'
     )
     plt.close(fig)
 
@@ -58,6 +55,7 @@ def create_vertical_histogram(path, data):
     if u_theta is None or v_theta is None or w_theta is None:
         return None
 
+    data['file_name'] = path_leaf(path)
     data['hour'] = get_hour_from_nc_file(data=data)
     max_level = u_theta.shape[0] - 1
     if 'start_height' not in data.keys() or 'end_height' not in data.keys():
