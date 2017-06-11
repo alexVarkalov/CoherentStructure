@@ -33,7 +33,7 @@ def get_matrix_by_horizontal_histogram(u, v):
             highest_bin_number = j
             break
     # fig.clear()
-    main_shift = 5
+    main_shift = 8
     left_shift = main_shift
     right_shift = main_shift
 
@@ -41,30 +41,33 @@ def get_matrix_by_horizontal_histogram(u, v):
 
         left_shift = highest_bin_number - 1
         right_shift += main_shift - left_shift
-        print 'highest_bin_number - left_shift <= 0'
-        print 'highest_bin_number = {}'.format(highest_bin_number)
-        print 'left_shift = {}'.format(left_shift)
-        print 'right_shift = {}'.format(right_shift)
+        if 'demo' in sys.argv:
+            print 'highest_bin_number - left_shift <= 0'
+            print 'highest_bin_number = {}'.format(highest_bin_number)
+            print 'left_shift = {}'.format(left_shift)
+            print 'right_shift = {}'.format(right_shift)
 
     elif highest_bin_number + right_shift >= len(n):
         right_shift = len(n) - highest_bin_number - 1
         left_shift += main_shift - right_shift
-        print 'highest_bin_number + right_shift >= len(n)'
-        print 'highest_bin_number = {}'.format(highest_bin_number)
-        print 'left_shift = {}'.format(left_shift)
-        print 'right_shift = {}'.format(right_shift)
-    # left_shift = 5
-    # right_shift = 0
+        if 'demo' in sys.argv:
+            print 'highest_bin_number + right_shift >= len(n)'
+            print 'highest_bin_number = {}'.format(highest_bin_number)
+            print 'left_shift = {}'.format(left_shift)
+            print 'right_shift = {}'.format(right_shift)
+
     right_boarder = bins[highest_bin_number + right_shift]
     left_boarder = bins[highest_bin_number - left_shift]
     new_module_matrix = np.zeros((u.shape[0], u.shape[1]))
+
     for i in range(u.shape[0]):
         for j in range(u.shape[0]):
             elem = module_matrix[i][j]
-            if elem < left_boarder or elem > right_boarder:
-                new_module_matrix[i][j] = 0
-            else:
+            if elem > 10 and (elem < left_boarder or elem > right_boarder):
                 new_module_matrix[i][j] = elem
+            else:
+                new_module_matrix[i][j] = 0
+
     return new_module_matrix
 
 

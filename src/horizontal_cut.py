@@ -8,7 +8,7 @@ import os
 
 from theta_wind_matrix import get_theta_wind_matrix, theta_wind_matrix
 from ui_utils import get_file_paths, get_heights, choose_divide_method
-from utils import save_plot, create_module_matrix, get_hour_from_nc_file, path_leaf
+from utils import save_plot, create_module_matrix, get_hour_from_nc_file, path_leaf, vort_matrix
 from settings import DEFAULT_HORIZONTAL_CUT_SETTINGS
 
 
@@ -67,9 +67,15 @@ def plot_horizontal_cut(u, v, w, data):
             vmax=DEFAULT_HORIZONTAL_CUT_SETTINGS.get('horizontal_speed_up', 45),
         )
     frame = (x_axis.min(), x_axis.max(), y_axis.min(), y_axis.max())
+    if 'vort' in sys.argv:
+        background_color = vort_matrix(module_matrix=background_color, u=u, v=v)
 
+        background_color = np.ma.masked_where(background_color < 10, background_color)
+        color_map = plt.cm.Greys
+        color_map.set_bad(color='black')
     plt.imshow(background_color, cmap=color_map, extent=frame, origin='lower')
-    if v_speed or h_speed:
+
+    if not 'vort' in sys.argv and (v_speed or h_speed):
         plt.colorbar()
         if h_speed:
             plt.clim(

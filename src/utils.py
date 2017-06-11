@@ -135,6 +135,30 @@ def wrf_vort( U, V, dx ):
     return ( dv[-1]/dx - du[-2]/dy )
 
 
+def vort_matrix(module_matrix, u, v):
+    new_u = np.zeros((u.shape[0], u.shape[1]))
+    new_v = np.zeros((u.shape[0], u.shape[1]))
+
+    for i in range(249):
+        for j in range(249):
+            if module_matrix[i][j] != 0:
+                new_u[i][j] = u[i][j]
+                new_v[i][j] = v[i][j]
+    new_module_matrix = wrf_vort(new_u, new_v, 1)
+    for i in range(249):
+        for j in range(249):
+            if new_module_matrix[i][j] < 0:
+                new_module_matrix[i][j] *= -1
+
+    for i in range(249):
+        for j in range(249):
+            if new_module_matrix[i][j] < 5:
+                new_module_matrix[i][j] = 0
+            else:
+                new_module_matrix[i][j] = 10
+    return new_module_matrix
+
+
 def wrf_absvort(U, V, F, dx):
     """Calculate the absolute vorticity given the U and V vector components in m/s,
     the Coriolis sine latitude term (F) in s^-1, and gridspacing dx in meters. U, V, and F
